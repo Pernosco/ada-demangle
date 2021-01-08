@@ -112,9 +112,10 @@ fn parse_operator(mut bytes: &[u8]) -> Option<&'static str> {
 }
 
 pub trait DemangleVisitor<'a> {
-    fn enter_component(&mut self) {}
+    fn enter_prefix(&mut self) {}
+    fn enter_ident(&mut self) {}
     fn text(&mut self, text: Cow<'a, str>);
-    fn exit_component(&mut self) {}
+    fn exit(&mut self) {}
 }
 
 fn is_anonymous_block(bytes: &[u8]) -> bool {
@@ -147,10 +148,12 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         if is_anonymous_block(prefix) {
             continue;
         }
-        visitor.enter_component();
+        visitor.enter_prefix();
+        visitor.enter_ident();
         visitor.text(bytes_to_string(prefix)?);
-        visitor.exit_component();
+        visitor.exit();
         visitor.text(Cow::Borrowed("."));
+        visitor.exit();
     }
 
     if let Some(i) = bytes
@@ -160,12 +163,12 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         bytes = &bytes[..i];
     }
 
-    visitor.enter_component();
+    visitor.enter_ident();
     if let Some(o) = parse_operator(bytes) {
         visitor.text(Cow::Borrowed(o));
     } else {
         visitor.text(bytes_to_string(bytes)?);
     }
-    visitor.exit_component();
+    visitor.exit();
     Some(())
 }
