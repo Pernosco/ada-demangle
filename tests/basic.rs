@@ -43,7 +43,10 @@ fn check(input: &[u8], output: &str) {
 #[test]
 fn names() {
     check(b"_ada_main", "(main)");
-    check(b"module__pcontrolled__l2", "[(module).)[(pcontrolled).)(l2)");
+    check(
+        b"module__pcontrolled__l2",
+        "[(module).)[(pcontrolled).)(l2)",
+    );
     check(b"module__square__2", "[(module).)(square)");
     check(
         b"ada__exceptions__exception_traces__last_chance_handlerXn",
@@ -52,6 +55,10 @@ fn names() {
     check(
         b"ada_main__finalize_library__B_4__reraise_library_exception_if_any",
         "[(ada_main).)[(finalize_library).)(reraise_library_exception_if_any)",
+    );
+    check(
+        b"ada_main__adafinal__s_stalib_adafinal",
+        "[(ada_main).)[(adafinal).)(s_stalib_adafinal)",
     );
     check(b"Oeq", "(=)");
 }
