@@ -31,13 +31,20 @@ fn check(input: &[u8], output: &str) {
     let mut visitor = Visitor {
         inner: String::new(),
     };
-    demangle(input, &mut visitor);
+    assert_eq!(demangle(input, &mut visitor), Some(()));
     assert_eq!(
         visitor.inner,
         output,
         "For input {}",
         String::from_utf8_lossy(input)
     );
+}
+
+fn check_none(input: &[u8]) {
+    let mut visitor = Visitor {
+        inner: String::new(),
+    };
+    assert_eq!(demangle(input, &mut visitor), None);
 }
 
 #[test]
@@ -61,4 +68,5 @@ fn names() {
         "[(ada_main).)[(adafinal).)(s_stalib_adafinal)",
     );
     check(b"Oeq", "(=)");
+    check_none(b"B53b");
 }

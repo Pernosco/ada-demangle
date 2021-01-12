@@ -148,6 +148,9 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         if is_anonymous_block(prefix) {
             continue;
         }
+        if prefix.is_empty() {
+            return None;
+        }
         visitor.enter_prefix();
         visitor.enter_ident();
         visitor.text(bytes_to_string(prefix)?);
@@ -163,6 +166,9 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         bytes = &bytes[..i];
     }
 
+    if bytes.is_empty() {
+        return None;
+    }
     visitor.enter_ident();
     if let Some(o) = parse_operator(bytes) {
         visitor.text(Cow::Borrowed(o));
