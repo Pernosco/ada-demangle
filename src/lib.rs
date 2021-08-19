@@ -111,11 +111,18 @@ fn parse_operator(mut bytes: &[u8]) -> Option<&'static str> {
     })
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum SpecialSymbolType {
+    TaskBody,
+}
+
 pub trait DemangleVisitor<'a> {
     fn enter_prefix(&mut self) {}
     fn enter_ident(&mut self) {}
     fn text(&mut self, text: Cow<'a, str>);
     fn exit(&mut self) {}
+    fn finish(&mut self, symbol_type: Option<SpecialSymbolType>);
 }
 
 fn is_anonymous_block(bytes: &[u8]) -> bool {
@@ -159,11 +166,17 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         visitor.exit();
     }
 
+    let mut symbol_type = None;
     if let Some(i) = bytes
         .iter()
         .rposition(|c| matches!(*c, b'X' | b'N' | b'E' | b'B'))
     {
-        bytes = &bytes[..i];
+        let (to_decode, suffix) = bytes.split_at(i);
+        bytes = to_decode;
+        symbol_type = match suffix {
+            &[b'B'] => Some(SpecialSymbolType::TaskBody),
+            _ => None
+        };
     }
 
     if bytes.is_empty() {
@@ -176,5 +189,6 @@ pub fn demangle<'a, V: DemangleVisitor<'a>>(mut bytes: &'a [u8], visitor: &mut V
         visitor.text(bytes_to_string(bytes)?);
     }
     visitor.exit();
+    visitor.finish(symbol_type);
     Some(())
 }
