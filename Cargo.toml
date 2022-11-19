@@ -3,6 +3,6 @@ name = "ada-demangle"
 version = "0.1.0"
 authors = ["Robert O'Callahan <robert@ocallahan.org>"]
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
