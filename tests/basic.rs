@@ -25,6 +25,8 @@ impl<'a> DemangleVisitor<'a> for Visitor {
     fn exit(&mut self) {
         self.inner.push(')');
     }
+    fn finish(&mut self, _: Option<SpecialSymbolType>) {
+    }
 }
 
 fn check(input: &[u8], output: &str) {
